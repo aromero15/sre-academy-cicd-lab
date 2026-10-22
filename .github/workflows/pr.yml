@@ -1,0 +1,37 @@
+name: PR - Python Validation
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: python -m pip install -r requirements.txt
+
+      - name: Ejecutar las pruebas de todos los servicios
+        run: bash scripts/test.sh
+
+# PREGUNTA: ¿Por qué este workflow no debería desplegar a producción?
+#r/ No se deberia desplegar porque se ejecuta con cada PR, 
+#   osea con codigo que no se ha revisado ni aprobado, 
+#   su objetivo es validar los cambios antes del merge.
+#   si se desplegara, cualquier PR con errores podria llegar a prod.
+#   por eso el despligue se hace por separado despues de integrar a main 
+#   y hasta que las pruebas pasen. 
+
